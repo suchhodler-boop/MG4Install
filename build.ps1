@@ -22,7 +22,7 @@ $sources=Get-ChildItem "$root\src" -Filter *.java -Recurse | ForEach-Object { '"
 Copy-Item "$build\base.apk" "$build\unsigned.apk" -Force
 & "$Jdk\bin\jar.exe" uf "$build\unsigned.apk" -C "$build\dex" classes.dex; Check 'APK assembly'
 & "$bt\zipalign.exe" -f 4 "$build\unsigned.apk" "$build\aligned.apk"; Check 'Alignment'
-$out="$root\dist\MG4-Install-1.0.0-$variant.apk"
+$out="$root\dist\MG4-Install-1.1.0-$variant.apk"
 & "$bt\apksigner.bat" sign --key "$root\keys\platform.pk8" --cert "$root\keys\platform.x509.pem" --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled false --out $out "$build\aligned.apk"; Check 'Signing'
 & "$bt\apksigner.bat" verify --verbose $out; Check 'Signature verification'
 Write-Host "Built $out"

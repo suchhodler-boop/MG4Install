@@ -38,6 +38,8 @@ public class InstallService extends Service {
     void runInstall(Intent intent) {
         File apk=new File(getCacheDir(),"pending.apk"); int sessionId=-1; boolean committed=false;
         try {
+            int firmware=intent.getIntExtra("firmware",0);
+            if(firmware==0||intent.getIntExtra("reviewed",0)!=firmware||Firmware.mismatch(firmware,intent.getStringExtra("repo")==null?"":intent.getStringExtra("repo"),intent.getStringExtra("name")==null?"":intent.getStringExtra("name")))throw new IOException("Firmware compatibility review is required");
             String title=intent.getStringExtra("name"); long expected=intent.getLongExtra("size",0);
             if(expected>1024L*1024*1024) throw new IOException("APK exceeds the 1 GB download limit");
             if(expected>0&&getCacheDir().getUsableSpace()<expected*2+32*1024*1024) throw new IOException("Not enough free storage");

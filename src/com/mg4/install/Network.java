@@ -36,7 +36,7 @@ public final class Network {
         return new ArrayList<>(all.values());
     }
     public static final class Asset {
-        String name,url,version,digest; long size;
+        String name,url,version,digest,repo=""; int reviewedFirmware=0; long size;
         Asset(String n,String u,String v,String d,long s) { name=n;url=u;version=v;digest=d;size=s; }
         String label() { return name+"\n"+version+(size>0?String.format(java.util.Locale.US," · %.1f MB",size/1048576.0):""); }
     }
