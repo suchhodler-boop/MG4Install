@@ -62,12 +62,17 @@ public class MainActivity extends Activity {
         Collections.sort(filtered,Ranking.order(stats,sortMode,firmware,System.currentTimeMillis()));
         count.setText("COMMUNITY APPS   /   "+filtered.size());
         int width=getResources().getConfiguration().screenWidthDp;int columns=Math.max(1,Math.min(4,(width-42)/280));
-        LinearLayout row=null;
-        for(int i=0;i<filtered.size();i++){
-            if(i%columns==0){row=horizontal();row.setGravity(Gravity.TOP);rows.addView(row,new LinearLayout.LayoutParams(-1,-2));}
-            LinearLayout card=card(filtered.get(i));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(238),1);lp.rightMargin=dp(i%columns==columns-1?0:12);lp.bottomMargin=dp(12);row.addView(card,lp);
+        for(int group=0;group<4;group++){
+            List<FeedParser.Repo> members=new ArrayList<>();for(FeedParser.Repo r:filtered)if(projectState(r)==group)members.add(r);
+            if(members.isEmpty())continue;
+            TextView section=text(Compatibility.section(group)+"  /  "+members.size(),13,group==0?ACCENT:0xffe6b66e);section.setPadding(0,dp(12),0,dp(12));rows.addView(section);
+            LinearLayout row=null;
+            for(int i=0;i<members.size();i++){
+                if(i%columns==0){row=horizontal();row.setGravity(Gravity.TOP);rows.addView(row,new LinearLayout.LayoutParams(-1,-2));}
+                LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(250),1);lp.rightMargin=dp(i%columns==columns-1?0:12);lp.bottomMargin=dp(12);row.addView(card(members.get(i)),lp);
+            }
+            if(row!=null&&members.size()%columns!=0)for(int i=members.size()%columns;i<columns;i++){LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(250),1);lp.rightMargin=dp(i==columns-1?0:12);row.addView(new View(this),lp);}
         }
-        if(row!=null&&filtered.size()%columns!=0)for(int i=filtered.size()%columns;i<columns;i++){LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(238),1);lp.rightMargin=dp(i==columns-1?0:12);row.addView(new View(this),lp);}
         if(filtered.isEmpty()){TextView empty=text(repos.isEmpty()?"Your app collection will appear here.\nRefresh to connect to GitHub.":"No matching apps. Try another search.",18,MUTED);empty.setGravity(Gravity.CENTER);rows.addView(empty,new LinearLayout.LayoutParams(-1,dp(180)));}
     }
     LinearLayout card(FeedParser.Repo repo){
@@ -76,43 +81,49 @@ public class MainActivity extends Activity {
         TextView monogram=text(shortName.substring(0,Math.min(2,shortName.length())).toUpperCase(Locale.ROOT),16,ACCENT);monogram.setGravity(Gravity.CENTER);monogram.setTypeface(Typeface.DEFAULT_BOLD);monogram.setBackground(shape(0xff17352e,10));top.addView(monogram,new LinearLayout.LayoutParams(dp(40),dp(40)));space(top,10);
         LinearLayout titles=new LinearLayout(this);titles.setOrientation(1);TextView name=text(repo.name(),16,TEXT);name.setTypeface(Typeface.create("sans-serif-medium",0));name.setMaxLines(1);name.setEllipsize(TextUtils.TruncateAt.END);titles.addView(name);TextView author=text(repo.slug.split("/")[0],11,MUTED);author.setSingleLine(true);titles.addView(author);top.addView(titles,new LinearLayout.LayoutParams(0,-2,1));card.addView(top);
         TextView desc=text(android.text.Html.fromHtml(repo.description,0).toString(),13,MUTED);desc.setMaxLines(3);desc.setEllipsize(TextUtils.TruncateAt.END);desc.setLineSpacing(dp(2),1);desc.setPadding(0,dp(12),0,dp(8));card.addView(desc,new LinearLayout.LayoutParams(-1,0,1));
-        TextView compatibility=text(Firmware.label(repo.name()+" "+repo.description)+(Firmware.mismatch(firmware,repo.name()+" "+repo.description,"")?" · mismatch":""),11,0xffe6b66e);compatibility.setSingleLine(true);compatibility.setEllipsize(TextUtils.TruncateAt.END);card.addView(compatibility);
+        int state=projectState(repo);
+        TextView compatibility=text(Compatibility.label(state)+"  ⓘ",11,state==0?ACCENT:0xffe6b66e);compatibility.setMinHeight(dp(36));compatibility.setGravity(Gravity.CENTER_VERTICAL);compatibility.setOnClickListener(v->evidence(repo));card.addView(compatibility);
         Ranking.Stats metric=stats.get(repo.slug);String metricText="APK downloads: not loaded";
         if(metric!=null)metricText=String.format(Locale.US,"%,d%s APK downloads",metric.downloads,metric.partial?"+":"")+(metric.latest>0?" · "+android.text.format.DateFormat.format("MMM yyyy",metric.latest):" · no stable release");
         TextView downloads=text(metricText,11,MUTED);downloads.setSingleLine(true);downloads.setPadding(0,dp(4),0,dp(4));card.addView(downloads);
         LinearLayout bottom=horizontal();TextView source=text("View project  ↗",12,MUTED);source.setMinHeight(dp(44));source.setGravity(Gravity.CENTER_VERTICAL);source.setOnClickListener(v->open(repo));bottom.addView(source,new LinearLayout.LayoutParams(0,dp(44),1));
-        TextView install=button("↓  Install",true,()->resolve(repo));install.setContentDescription("Install "+repo.name());bottom.addView(install,new LinearLayout.LayoutParams(dp(105),dp(44)));card.addView(bottom);return card;
+        TextView install=button(state==3?"↗  Source":"↓  Install",true,()->{if(state==3)open(repo);else resolve(repo);});install.setContentDescription("Install "+repo.name());bottom.addView(install,new LinearLayout.LayoutParams(dp(105),dp(44)));card.addView(bottom);return card;
     }
+    int projectState(FeedParser.Repo r){Ranking.Stats m=stats.get(r.slug);return Compatibility.project(r.slug,firmware,m==null?null:m.latestTag);}
+    void link(String url){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}catch(Exception e){dialog("Source link",url);}}
+    void evidence(FeedParser.Repo repo){Compatibility.Entry e=Compatibility.get(repo.slug);new AlertDialog.Builder(this).setTitle(Compatibility.label(projectState(repo))).setMessage(e.note+"\n\nReview: 16 Nov 2026, SWI165. Reviewed stable APK release: "+(e.tag.isEmpty()?"none":e.tag)+". New releases/replaced assets are unverified. Documented support does not establish every feature, revision or hardware combination.").setPositiveButton("README",(d,w)->link(e.readme)).setNeutralButton("Release notes",(d,w)->link(e.release)).setNegativeButton("Close",null).show();}
     void open(FeedParser.Repo r){try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/"+r.slug)));}catch(Exception e){dialog("Project link","https://github.com/"+r.slug);}}
     void refresh(){if(loading)return;loading=true;sync.setText("Syncing live GitHub list…");worker.execute(()->{try{List<FeedParser.Repo> fresh=Network.feed();JSONArray a=new JSONArray();for(FeedParser.Repo r:fresh){JSONObject o=new JSONObject();o.put("slug",r.slug);o.put("description",r.description);a.put(o);}getSharedPreferences("feed",0).edit().putString("data",a.toString()).putLong("time",System.currentTimeMillis()).apply();runOnUiThread(()->{repos.clear();repos.addAll(fresh);loading=false;sync.setText("● Live from GitHub  ·  "+fresh.size()+" projects  ·  just updated");render();loadStats(new ArrayList<>(fresh));});}catch(Exception e){runOnUiThread(()->{loading=false;sync.setText("Offline / sync unavailable · showing saved feed");status.setText(e.getMessage());});}});}
     void readCache(){try{android.content.SharedPreferences p=getSharedPreferences("feed",0);JSONArray a=new JSONArray(p.getString("data","[]"));for(int i=0;i<a.length();i++){JSONObject o=a.getJSONObject(i);repos.add(new FeedParser.Repo(o.getString("slug"),o.getString("description")));}if(!repos.isEmpty())sync.setText("Saved feed · "+android.text.format.DateFormat.format("dd MMM, HH:mm",p.getLong("time",0)));render();}catch(Exception ignored){}}
     void resolve(FeedParser.Repo repo){
         if(firmware==0){chooseFirmware();return;}
-        if(Firmware.mismatch(firmware,repo.name()+" "+repo.description,"")){dialog("Firmware mismatch",Firmware.label(repo.name()+" "+repo.description)+". Your selected firmware is SWI"+firmware+". Installation is blocked; review the project instructions.");return;}
         if(InstallService.busy){dialog("Download in progress","Wait for the current APK or cancel its download first.");return;}
         status.setText("Finding APKs for "+repo.name()+"…");
         worker.execute(()->{try{List<Network.Asset> assets=Network.assets(repo.slug,beta);runOnUiThread(()->{
             if(isFinishing()||isDestroyed())return;
             if(assets.isEmpty()){status.setText("No published APK found for "+repo.name());new AlertDialog.Builder(this).setTitle("No APK available").setMessage("This project has no APK in its eligible releases or repository. See the project’s instructions."+(beta?"":" You can include prereleases in About.")).setPositiveButton("View project",(d,w)->open(repo)).setNegativeButton("Close",null).show();return;}
-            status.setText("Choose an APK for "+repo.name());for(Network.Asset asset:assets)asset.repo=repo.slug+" "+repo.description;String[] labels=new String[assets.size()];for(int i=0;i<labels.length;i++)labels[i]=assets.get(i).label()+(Firmware.mismatch(firmware,repo.name()+" "+repo.description,assets.get(i).name)?" · BLOCKED for SWI"+firmware:"");
+            status.setText("Choose an APK for "+repo.name());for(Network.Asset asset:assets)asset.repo=repo.slug;String[] labels=new String[assets.size()];for(int i=0;i<labels.length;i++){Network.Asset a=assets.get(i);labels[i]=a.label()+" · "+Compatibility.label(Compatibility.asset(repo.slug,firmware,a.version,a.id));}
             new AlertDialog.Builder(this).setTitle(repo.name()+" · choose APK").setItems(labels,(d,index)->confirm(repo,assets.get(index))).setNegativeButton("Cancel",null).show();
         });}catch(Exception e){runOnUiThread(()->{status.setText(e.getMessage());dialog("Couldn’t find APKs",e.getMessage());});}});
     }
     void confirm(FeedParser.Repo repo,Network.Asset asset){
-        if(Firmware.mismatch(firmware,repo.name()+" "+repo.description,asset.name)){dialog("Firmware mismatch","This project or APK names a different SWI firmware. Installation is blocked for SWI"+firmware+". Choose a matching build or review the project.");return;}
+        int state=Compatibility.asset(repo.slug,firmware,asset.version,asset.id);
+        if(state==Compatibility.UNSUPPORTED||state==Compatibility.REFERENCE){dialog("Installation blocked",Compatibility.get(repo.slug).note);return;}
         LinearLayout box=new LinearLayout(this);box.setOrientation(1);box.setPadding(dp(24),dp(10),dp(24),dp(10));
-        box.addView(text(asset.label()+"\n\nYour firmware: SWI"+firmware+"\n"+Firmware.label(repo.name()+" "+repo.description+" "+asset.name)+"\n\nNames are hints, not compatibility guarantees. Check the author's instructions for this exact APK and firmware revision.",15,TEXT));
+        Compatibility.Entry entry=Compatibility.get(repo.slug);
+        box.addView(text(asset.label()+"\n\nYour firmware: SWI"+firmware+"\n"+Compatibility.label(state)+"\n\n"+entry.note+"\n\nEvidence reviewed 16 Nov 2026; stable release: "+(entry.tag.isEmpty()?"none":entry.tag)+". Confirmation applies only to reviewed asset IDs. Other releases and replacement assets remain unverified. Check the full firmware revision and equipment.",15,TEXT));
+        TextView sources=button("Read compatibility evidence",false,()->evidence(repo));box.addView(sources);
         CheckBox checked=new CheckBox(this);checked.setText("I checked the author’s instructions for my firmware");box.addView(checked);
         ScrollView reviewScroll=new ScrollView(this);reviewScroll.addView(box); AlertDialog d=new AlertDialog.Builder(this).setTitle("Check firmware before installing").setView(reviewScroll).setPositiveButton("Download & install",(v,w)->{asset.reviewedFirmware=firmware;begin(asset);}).setNegativeButton("Cancel",null).setNeutralButton("View project",(v,w)->open(repo)).create();
         d.setOnShowListener(v->{d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);checked.setOnCheckedChangeListener((c,on)->d.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(on));});d.show();
     }
     void begin(Network.Asset a){
-        if(firmware==0||a.reviewedFirmware!=firmware||Firmware.mismatch(firmware,a.repo,a.name)){dialog("Review firmware again","Firmware is unknown, changed, or mismatched. Select a matching APK and review compatibility.");return;}
+        if(firmware==0||a.reviewedFirmware!=firmware||Compatibility.asset(a.repo,firmware,a.version,a.id)>=Compatibility.UNSUPPORTED){dialog("Review firmware again","Firmware is unknown, changed, or mismatched. Select a matching APK and review compatibility.");return;}
         if(InstallService.busy){dialog("Download in progress","Wait for the current download to finish.");return;}
         if(checkSelfPermission("android.permission.INSTALL_PACKAGES")!=android.content.pm.PackageManager.PERMISSION_GRANTED&&!getPackageManager().canRequestPackageInstalls()){
             pending=a;new AlertDialog.Builder(this).setTitle("Allow app installation").setMessage("Enable permission for MG4 Install, then return here. If Android restarts the app, select the APK again.").setPositiveButton("Open settings",(d,w)->startActivityForResult(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,Uri.parse("package:"+getPackageName())),10)).setNegativeButton("Cancel",(d,w)->pending=null).show();return;
         }
-        startForegroundService(new Intent(this,InstallService.class).putExtra("firmware",firmware).putExtra("reviewed",a.reviewedFirmware).putExtra("repo",a.repo).putExtra("url",a.url).putExtra("name",a.name).putExtra("size",a.size).putExtra("digest",a.digest));status.setText("Starting download…");
+        startForegroundService(new Intent(this,InstallService.class).putExtra("firmware",firmware).putExtra("reviewed",a.reviewedFirmware).putExtra("repo",a.repo).putExtra("version",a.version).putExtra("assetId",a.id).putExtra("url",a.url).putExtra("name",a.name).putExtra("size",a.size).putExtra("digest",a.digest));status.setText("Starting download…");
     }
     protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);if(req==10&&pending!=null){Network.Asset a=pending;pending=null;if(getPackageManager().canRequestPackageInstalls())begin(a);else status.setText("Installation permission was not granted.");}}
     void dialog(String title,String message){if(!isFinishing()&&!isDestroyed())new AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton("OK",null).show();}
@@ -131,7 +142,7 @@ public class MainActivity extends Activity {
             boolean failed=false;String reason="";
             for(FeedParser.Repo r:snapshot){
                 if(Thread.currentThread().isInterrupted())break;
-                Ranking.Stats old=cached.get(r.slug);if(old!=null&&System.currentTimeMillis()-old.checked<12*3600000L)continue;
+                Ranking.Stats old=cached.get(r.slug);if(old!=null&&!old.latestTag.isEmpty()&&System.currentTimeMillis()-old.checked<12*3600000L)continue;
                 try{Ranking.Stats fresh=Popularity.fetch(r.slug);cached.put(r.slug,fresh);}
                 catch(Exception e){failed=true;reason=e.getMessage();if(reason!=null&&reason.contains("limit"))break;}
             }
@@ -141,8 +152,8 @@ public class MainActivity extends Activity {
     }
     void about(){
         LinearLayout content=new LinearLayout(this);content.setOrientation(1);content.setPadding(dp(24),dp(10),dp(24),dp(10));
-        TextView info=text("A live collection from hojnikb / mg4-apps.\n\nRecommended order uses editorial usefulness, GitHub APK download counts and stable-release age. Counts cover up to 100 releases (including prereleases); + means a lower bound. Downloads are not unique users. Missing stats are not treated as zero. Firmware hints do not prove compatibility.\n\nMG4Zorst-inspired design. Installer adapted from Skittle6938/MG4Dash under GPL-3.0.\n\nSystem installation requires compatible MG4 platform firmware. Use while parked.",15,TEXT);content.addView(info);
+        TextView info=text("A live collection from hojnikb / mg4-apps.\n\nRecommended order uses editorial usefulness, GitHub APK download counts and stable-release age. Counts cover up to 100 releases (including prereleases); + means a lower bound. Downloads are not unique users. Missing stats are not treated as zero. Compatibility groups always come first. SWI165 evidence was reviewed on 16 Nov 2026 from READMEs and release notes. Author-confirmed means documented support, not testing on your car. New versions and replaced assets stay unverified until reviewed. Tap a compatibility label for evidence.\n\nMG4Zorst-inspired design. Installer adapted from Skittle6938/MG4Dash under GPL-3.0.\n\nSystem installation requires compatible MG4 platform firmware. Use while parked.",15,TEXT);content.addView(info);
         CheckBox choice=new CheckBox(this);choice.setText("Include prerelease APKs");choice.setChecked(beta);choice.setPadding(0,dp(15),0,0);choice.setOnCheckedChangeListener((v,checked)->{beta=checked;getPreferences(0).edit().putBoolean("beta",beta).apply();});content.addView(choice);
-        ScrollView aboutScroll=new ScrollView(this);aboutScroll.addView(content);new AlertDialog.Builder(this).setTitle("MG4 Install 1.1.0").setView(aboutScroll).setPositiveButton("Done",null).setNeutralButton("GitHub list",(d,w)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(FeedParser.FEED)));}catch(Exception ignored){}}).show();
+        ScrollView aboutScroll=new ScrollView(this);aboutScroll.addView(content);new AlertDialog.Builder(this).setTitle("MG4 Install 1.2.0").setView(aboutScroll).setPositiveButton("Done",null).setNeutralButton("GitHub list",(d,w)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(FeedParser.FEED)));}catch(Exception ignored){}}).show();
     }
 }

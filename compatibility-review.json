@@ -1,0 +1,320 @@
+{
+  "reviewed": "2026-11-16",
+  "firmware": 165,
+  "projects": [
+    {
+      "slug": "Skittle6938/winclose",
+      "state": 1,
+      "note": "Documented tests cover SWI69 and several other revisions, but not SWI165. Window APIs vary by firmware revision.",
+      "tag": "v1.2.0",
+      "assetIds": [
+        473826457
+      ],
+      "readme": "https://github.com/Skittle6938/winclose/blob/HEAD/README.md",
+      "release": "https://github.com/Skittle6938/winclose/releases/tag/v1.2.0",
+      "releaseCount": 2
+    },
+    {
+      "slug": "Skittle6938/MG4-Radio-DABplus-Fix",
+      "state": 1,
+      "note": "Legacy radio fix; successor is MG4Radio. Requires a compatible stock Radio_eh32_ll package; no SWI165 confirmation.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/Skittle6938/MG4-Radio-DABplus-Fix/blob/HEAD/README.md",
+      "release": "https://github.com/Skittle6938/MG4-Radio-DABplus-Fix/releases",
+      "releaseCount": 0
+    },
+    {
+      "slug": "SliDeeN/MG4Control",
+      "state": 0,
+      "note": "Tagged README explicitly lists SWI165 as compatible; v2.5.0 introduced SWI165 support. Available features depend on vehicle equipment and vendor services.",
+      "tag": "v2.6.10",
+      "assetIds": [
+        699329192,
+        699329191
+      ],
+      "readme": "https://github.com/SliDeeN/MG4Control/blob/v2.6.10/README.md",
+      "release": "https://github.com/SliDeeN/MG4Control/releases/tag/v2.6.10",
+      "releaseCount": 30
+    },
+    {
+      "slug": "merthankaraman/DriveHub_Dort",
+      "state": 1,
+      "note": "README and release notes do not confirm SWI165. Vehicle integrations and platform signing require verification.",
+      "tag": "v0.23",
+      "assetIds": [
+        739168925
+      ],
+      "readme": "https://github.com/merthankaraman/DriveHub_Dort/blob/HEAD/README.md",
+      "release": "https://github.com/merthankaraman/DriveHub_Dort/releases/tag/v0.23",
+      "releaseCount": 4
+    },
+    {
+      "slug": "jamakr4/MG4-HVAC-Overlay-Launcher",
+      "state": 1,
+      "note": "Requires the stock SystemUI IPageService climate interface. No SWI165 confirmation.",
+      "tag": "v1.0",
+      "assetIds": [
+        430959149
+      ],
+      "readme": "https://github.com/jamakr4/MG4-HVAC-Overlay-Launcher/blob/HEAD/README.md",
+      "release": "https://github.com/jamakr4/MG4-HVAC-Overlay-Launcher/releases/tag/v1.0",
+      "releaseCount": 1
+    },
+    {
+      "slug": "lkernan/ABRP_Uploader",
+      "state": 1,
+      "note": "MG4 EH32 integration is described, but no SWI165 confirmation or published releases.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/lkernan/ABRP_Uploader/blob/HEAD/README.md",
+      "release": "https://github.com/lkernan/ABRP_Uploader/releases",
+      "releaseCount": 0
+    },
+    {
+      "slug": "lkernan/ADBUtil",
+      "state": 1,
+      "note": "Documented for SE/Excite 2022–2025 with USB OTG. No SWI165 confirmation.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/lkernan/ADBUtil/blob/HEAD/README.md",
+      "release": "https://github.com/lkernan/ADBUtil/releases",
+      "releaseCount": 0
+    },
+    {
+      "slug": "lkernan/CarMediaPlayer",
+      "state": 1,
+      "note": "Author describes an Excite 51 media-player replacement. No SWI165 confirmation or published releases.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/lkernan/CarMediaPlayer/blob/HEAD/README.md",
+      "release": "https://github.com/lkernan/CarMediaPlayer/releases",
+      "releaseCount": 0
+    },
+    {
+      "slug": "adammcdonagh/MG4-Custom-Launcher",
+      "state": 1,
+      "note": "README reports testing on Trophy SWI68 R67 only. This is not evidence of SWI165 support.",
+      "tag": "v0.1",
+      "assetIds": [
+        346898627
+      ],
+      "readme": "https://github.com/adammcdonagh/MG4-Custom-Launcher/blob/HEAD/README.md",
+      "release": "https://github.com/adammcdonagh/MG4-Custom-Launcher/releases/tag/v0.1",
+      "releaseCount": 1
+    },
+    {
+      "slug": "paswotz/mg4-headunit-ui-switch",
+      "state": 1,
+      "note": "README restricts use to MG4 SE / EU Standard models. No SWI165 confirmation; check trim as well as firmware.",
+      "tag": "v105",
+      "assetIds": [
+        452050066
+      ],
+      "readme": "https://github.com/paswotz/mg4-headunit-ui-switch/blob/HEAD/README.md",
+      "release": "https://github.com/paswotz/mg4-headunit-ui-switch/releases/tag/v105",
+      "releaseCount": 5
+    },
+    {
+      "slug": "jamakr4/MG4-360-Camera-App",
+      "state": 1,
+      "note": "Requires compatible factory 360-camera hardware. Firmware upgrade instructions are not SWI165 support evidence.",
+      "tag": "v0.8.14",
+      "assetIds": [
+        727606759
+      ],
+      "readme": "https://github.com/jamakr4/MG4-360-Camera-App/blob/HEAD/README.md",
+      "release": "https://github.com/jamakr4/MG4-360-Camera-App/releases/tag/v0.8.14",
+      "releaseCount": 13
+    },
+    {
+      "slug": "Tommasov/MG4_Swipe",
+      "state": 1,
+      "note": "README and all release notes contain no explicit SWI165 confirmation. Check signing and accessibility requirements.",
+      "tag": "1.5",
+      "assetIds": [
+        574728398
+      ],
+      "readme": "https://github.com/Tommasov/MG4_Swipe/blob/HEAD/README.md",
+      "release": "https://github.com/Tommasov/MG4_Swipe/releases/tag/1.5",
+      "releaseCount": 5
+    },
+    {
+      "slug": "frasertag/MG4-HVACFloat",
+      "state": 1,
+      "note": "README and release notes describe HVAC features without confirming SWI165.",
+      "tag": "v0.5.4",
+      "assetIds": [
+        445408801
+      ],
+      "readme": "https://github.com/frasertag/MG4-HVACFloat/blob/HEAD/README.md",
+      "release": "https://github.com/frasertag/MG4-HVACFloat/releases/tag/v0.5.4",
+      "releaseCount": 8
+    },
+    {
+      "slug": "jamakr4/MG4-Dashcam-Trigger",
+      "state": 1,
+      "note": "Companion to a compatible 360-camera app; camera-app compatibility must be established first. No SWI165 confirmation.",
+      "tag": "v1.0",
+      "assetIds": [
+        451290690
+      ],
+      "readme": "https://github.com/jamakr4/MG4-Dashcam-Trigger/blob/HEAD/README.md",
+      "release": "https://github.com/jamakr4/MG4-Dashcam-Trigger/releases/tag/v1.0",
+      "releaseCount": 1
+    },
+    {
+      "slug": "jamakr4/Diagnostic-for-MG4",
+      "state": 3,
+      "note": "Diagnostic trouble-code JSON/reference project, not a head-unit APK.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/jamakr4/Diagnostic-for-MG4/blob/HEAD/README.md",
+      "release": "https://github.com/jamakr4/Diagnostic-for-MG4/releases",
+      "releaseCount": 1
+    },
+    {
+      "slug": "malys/EVTasker",
+      "state": 0,
+      "note": "Tagged README explicitly supports SWI165 climate, charging, radio/calls and equipped heating features. Runtime diagnostics determine actual available bindings; not every action is supported.",
+      "tag": "v2.18.4",
+      "assetIds": [
+        727149289
+      ],
+      "readme": "https://github.com/malys/EVTasker/blob/v2.18.4/README.md",
+      "release": "https://github.com/malys/EVTasker/releases/tag/v2.18.4",
+      "releaseCount": 35
+    },
+    {
+      "slug": "MG-EV-Hackers/Open-Vehicle-Monitoring-System-3-MGEV",
+      "state": 3,
+      "note": "OVMS firmware/hardware project, not a head-unit APK. Linked Android clients are separate projects.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/MG-EV-Hackers/Open-Vehicle-Monitoring-System-3-MGEV/blob/HEAD/README.md",
+      "release": "https://github.com/MG-EV-Hackers/Open-Vehicle-Monitoring-System-3-MGEV/releases",
+      "releaseCount": 0
+    },
+    {
+      "slug": "X-Ryl669/MG4-Custom-Launcher",
+      "state": 1,
+      "note": "README reports testing on Trophy SWI68 R67 only. No SWI165 confirmation.",
+      "tag": "v1.0.0",
+      "assetIds": [
+        550755501
+      ],
+      "readme": "https://github.com/X-Ryl669/MG4-Custom-Launcher/blob/HEAD/README.md",
+      "release": "https://github.com/X-Ryl669/MG4-Custom-Launcher/releases/tag/v1.0.0",
+      "releaseCount": 1
+    },
+    {
+      "slug": "fatihdonmezdev/DiPlay-MG4",
+      "state": 1,
+      "note": "Tested target is SWI69; other firmware is untested. SWI165 telemetry fixes do not confirm complete CarPlay/Android Auto compatibility.",
+      "tag": "v0.2.9-mg4.62",
+      "assetIds": [
+        731309422
+      ],
+      "readme": "https://github.com/fatihdonmezdev/DiPlay-MG4/blob/HEAD/README.md",
+      "release": "https://github.com/fatihdonmezdev/DiPlay-MG4/releases/tag/v0.2.9-mg4.62",
+      "releaseCount": 11
+    },
+    {
+      "slug": "Skittle6938/MG4-AndroidAuto-BootFix",
+      "state": 1,
+      "note": "Author compatibility table explicitly marks SWI165 unknown because of its different software base.",
+      "tag": "v1.3.0",
+      "assetIds": [
+        631227157
+      ],
+      "readme": "https://github.com/Skittle6938/MG4-AndroidAuto-BootFix/blob/HEAD/README.md",
+      "release": "https://github.com/Skittle6938/MG4-AndroidAuto-BootFix/releases/tag/v1.3.0",
+      "releaseCount": 4
+    },
+    {
+      "slug": "ernestomicco2026-cell/mg4-taskmanager",
+      "state": 1,
+      "note": "SWI68-specific accessibility instructions are documented, but no SWI165 confirmation.",
+      "tag": "v1.3",
+      "assetIds": [
+        679578001,
+        679578004
+      ],
+      "readme": "https://github.com/ernestomicco2026-cell/mg4-taskmanager/blob/HEAD/README.md",
+      "release": "https://github.com/ernestomicco2026-cell/mg4-taskmanager/releases/tag/v1.3",
+      "releaseCount": 5
+    },
+    {
+      "slug": "ernestomicco2026-cell/Mg4-Launcher-SWI68",
+      "state": 2,
+      "note": "README explicitly says this edition works ONLY with SWI68 SAIC 1.0+ and must not be installed on other firmware.",
+      "tag": "v1.0.3",
+      "assetIds": [
+        724200901
+      ],
+      "readme": "https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68/blob/HEAD/README.md",
+      "release": "https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68/releases/tag/v1.0.3",
+      "releaseCount": 28
+    },
+    {
+      "slug": "ernestomicco2026-cell/Mg4-Launcher-SWI69",
+      "state": 2,
+      "note": "README explicitly limits this edition to SWI69 Color Radio; firmware-specific editions are not interchangeable.",
+      "tag": "v0.4.3",
+      "assetIds": [
+        724265132
+      ],
+      "readme": "https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69/blob/HEAD/README.md",
+      "release": "https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69/releases/tag/v0.4.3",
+      "releaseCount": 26
+    },
+    {
+      "slug": "Skittle6938/MG4Dash",
+      "state": 0,
+      "note": "SWI165 support is beta and user-tested: climate, charging/limit, cable lock and Keep climate on are confirmed in the tagged README. v1.7.3 includes older-firmware climate fixes; this does not confirm every feature or the separate radio add-on.",
+      "tag": "v1.7.3",
+      "assetIds": [
+        752176227
+      ],
+      "readme": "https://github.com/Skittle6938/MG4Dash/blob/v1.7.3/README.md",
+      "release": "https://github.com/Skittle6938/MG4Dash/releases/tag/v1.7.3",
+      "releaseCount": 15
+    },
+    {
+      "slug": "Tommasov/MG4_Simple_Launcher",
+      "state": 1,
+      "note": "README and release history do not explicitly confirm SWI165.",
+      "tag": "1.7",
+      "assetIds": [
+        577519244
+      ],
+      "readme": "https://github.com/Tommasov/MG4_Simple_Launcher/blob/HEAD/README.md",
+      "release": "https://github.com/Tommasov/MG4_Simple_Launcher/releases/tag/1.7",
+      "releaseCount": 6
+    },
+    {
+      "slug": "Skittle6938/MG4Radio",
+      "state": 1,
+      "note": "SWI165 fixes are mentioned, but documented on-car testing is SWI69. Requires a compatible stock radio package; older-firmware fixes are not full-app validation.",
+      "tag": "v1.6.3",
+      "assetIds": [
+        752181842
+      ],
+      "readme": "https://github.com/Skittle6938/MG4Radio/blob/HEAD/README.md",
+      "release": "https://github.com/Skittle6938/MG4Radio/releases/tag/v1.6.3",
+      "releaseCount": 19
+    },
+    {
+      "slug": "ernestomicco2026-cell/HVAC-Clima-MG4",
+      "state": 0,
+      "note": "Tagged README includes SWI165 in the SWI68 climate family; release history records recognition of SWI165. OEM HVAC versions .41131/.47141 are documented; verify other OEM revisions and installed equipment.",
+      "tag": "1.4.2",
+      "assetIds": [
+        721805527
+      ],
+      "readme": "https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4/blob/1.4.2/README.md",
+      "release": "https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4/releases/tag/1.4.2",
+      "releaseCount": 9
+    }
+  ]
+}

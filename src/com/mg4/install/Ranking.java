@@ -1,7 +1,7 @@
 package com.mg4.install;
 import java.util.*;
 public final class Ranking {
- public static final class Stats {public long downloads,latest,checked;public boolean partial;}
+ public static final class Stats {public long downloads,latest,checked;public String latestTag="";public boolean partial;}
  public static int usefulness(String slug) {
   String s=slug.toLowerCase(Locale.ROOT);
   if(s.endsWith("/mg4dash")||s.endsWith("/mg4control"))return 35;
@@ -19,8 +19,8 @@ public final class Ranking {
   return value;
  }
  public static Comparator<FeedParser.Repo> order(Map<String,Stats> stats,int mode,int firmware,long now){return (a,b)->{
-  Stats x=stats.get(a.slug),y=stats.get(b.slug);int n;
-  if(mode==0){n=Boolean.compare(Firmware.mismatch(firmware,a.name()+" "+a.description,""),Firmware.mismatch(firmware,b.name()+" "+b.description,""));if(n!=0)return n;n=Double.compare(score(b.slug,y,now),score(a.slug,x,now));}
+  Stats x=stats.get(a.slug),y=stats.get(b.slug);int n=Integer.compare(Compatibility.project(a.slug,firmware,x==null?null:x.latestTag),Compatibility.project(b.slug,firmware,y==null?null:y.latestTag));if(n!=0)return n;
+  if(mode==0){n=Double.compare(score(b.slug,y,now),score(a.slug,x,now));}
   else if(mode==1)n=Long.compare(y==null?-1:y.downloads,x==null?-1:x.downloads);
   else n=Long.compare(y==null?0:y.latest,x==null?0:x.latest);
   return n!=0?n:a.slug.compareToIgnoreCase(b.slug);

@@ -10,9 +10,9 @@ public final class Popularity {
    JSONObject release=releases.getJSONObject(i);if(release.optBoolean("draft"))continue;
    JSONArray assets=release.getJSONArray("assets");boolean apk=false;
    for(int j=0;j<assets.length();j++){JSONObject a=assets.getJSONObject(j);if(a.optString("name").toLowerCase(Locale.ROOT).endsWith(".apk")){s.downloads+=Math.max(0,a.optLong("download_count"));apk=true;}}
-   if(apk&&!release.optBoolean("prerelease"))try{s.latest=Math.max(s.latest,Instant.parse(release.getString("published_at")).toEpochMilli());}catch(Exception ignored){}
+   if(apk&&!release.optBoolean("prerelease"))try{long date=Instant.parse(release.getString("published_at")).toEpochMilli();if(date>s.latest){s.latest=date;s.latestTag=release.optString("tag_name");}}catch(Exception ignored){}
   }return s;
  }
- public static JSONObject encode(Ranking.Stats s)throws Exception {return new JSONObject().put("downloads",s.downloads).put("latest",s.latest).put("checked",s.checked).put("partial",s.partial);}
- public static Ranking.Stats decode(JSONObject j){Ranking.Stats s=new Ranking.Stats();s.downloads=j.optLong("downloads");s.latest=j.optLong("latest");s.checked=j.optLong("checked");s.partial=j.optBoolean("partial");return s;}
+ public static JSONObject encode(Ranking.Stats s)throws Exception {return new JSONObject().put("latestTag",s.latestTag).put("downloads",s.downloads).put("latest",s.latest).put("checked",s.checked).put("partial",s.partial);}
+ public static Ranking.Stats decode(JSONObject j){Ranking.Stats s=new Ranking.Stats();s.latestTag=j.optString("latestTag");s.downloads=j.optLong("downloads");s.latest=j.optLong("latest");s.checked=j.optLong("checked");s.partial=j.optBoolean("partial");return s;}
 }

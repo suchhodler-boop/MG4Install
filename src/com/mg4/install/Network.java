@@ -36,7 +36,7 @@ public final class Network {
         return new ArrayList<>(all.values());
     }
     public static final class Asset {
-        String name,url,version,digest,repo=""; int reviewedFirmware=0; long size;
+        String name,url,version,digest,repo=""; int reviewedFirmware=0; long size,id;
         Asset(String n,String u,String v,String d,long s) { name=n;url=u;version=v;digest=d;size=s; }
         String label() { return name+"\n"+version+(size>0?String.format(java.util.Locale.US," · %.1f MB",size/1048576.0):""); }
     }
@@ -50,7 +50,7 @@ public final class Network {
                 if(r.optBoolean("draft")||(!beta&&r.optBoolean("prerelease"))) continue;
                 JSONArray a=r.getJSONArray("assets");
                 for(int j=0;j<a.length();j++) { JSONObject x=a.getJSONObject(j); String n=x.getString("name");
-                    if(n.toLowerCase(Locale.ROOT).endsWith(".apk")) out.add(new Asset(n,x.getString("browser_download_url"),r.optString("tag_name"),x.optString("digest",""),x.optLong("size")));
+                    if(n.toLowerCase(Locale.ROOT).endsWith(".apk")){Asset asset=new Asset(n,x.getString("browser_download_url"),r.optString("tag_name"),x.optString("digest",""),x.optLong("size"));asset.id=x.optLong("id");out.add(asset);}
                 }
                 if(!out.isEmpty()) return out;
             }
