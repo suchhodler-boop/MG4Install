@@ -1,0 +1,6 @@
+/build/
+/dist/
+/keys/
+/.scratch/
+/local.properties
+*.log

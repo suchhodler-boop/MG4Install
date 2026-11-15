@@ -1,0 +1,1 @@
+MG4Dash by Skittle6938, GPL-3.0. Source: https://github.com/Skittle6938/MG4Dash . Installer adapted from app/src/main/java/app/mg4dash/system/RadioDashUpdater.kt at commit c4b6623c5c3d2dcc96f9daa4ab019a7f2f21b97c. Changes: Java port; arbitrary chosen APK support; APK/digest/size validation; foreground download service; ordinary Android user-action handling.

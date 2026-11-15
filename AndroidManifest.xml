@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.mg4.install" android:versionCode="1" android:versionName="1.0.0" android:sharedUserId="android.uid.system">
+  <uses-sdk android:minSdkVersion="28" android:targetSdkVersion="28"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
+  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <application android:label="MG4 Install" android:icon="@drawable/icon" android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false">
+    <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden" android:screenOrientation="sensorLandscape">
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+    </activity>
+    <service android:name=".InstallService" android:exported="false"/>
+    <receiver android:name=".InstallResult" android:exported="false"/>
+  </application>
+</manifest>
