@@ -2,7 +2,7 @@
 
 Reviewed 16 November 2026. All 27 listed project READMEs and all available published release-note histories were checked. Confirmation means explicit author documentation, not testing on this user’s car. Firmware revision, hardware, vendor packages and individual features still matter. Missing evidence is unverified, not incompatible.
 
-The live project feed and release downloads remain live. This evidence snapshot is curated; new tags or replaced assets require fresh review and never inherit release confirmation. Confirmed releases are identified by tag and GitHub asset ID. All sorting modes keep compatibility groups first, then sort within each group.
+The live project feed and release downloads remain live. This evidence snapshot is curated; new tags or replaced assets require fresh review and never inherit release confirmation. Confirmed releases are identified by tag and GitHub asset ID. All sorting modes keep compatibility groups first, then sort within each group. As of app version 1.3.0 these classifications are advisory: users may continue with Install anyway after an incompatibility warning.
 
 ## Author-confirmed SWI165
 

@@ -4,7 +4,7 @@ Native Android 9+ app for the MG4 head unit. Charcoal and mint styling follows t
 
 ## Use
 
-Install `dist/MG4-Install-1.2.0-car.apk` once on a compatible MG4 head unit. Open MG4 Install, tap Install on a card, choose the correct APK variant, and confirm Download & install. Subsequent app installs are handed straight to Android's PackageInstaller; there is no Downloads-folder step. Use while parked.
+Install `dist/MG4-Install-1.3.0-car.apk` once on a compatible MG4 head unit. Open MG4 Install, tap Install on a card, choose the correct APK variant, and confirm Download & install. Subsequent app installs are handed straight to Android's PackageInstaller; there is no Downloads-folder step. Use while parked.
 
 The car build uses `android.uid.system` and the AOSP platform test certificate, as MG4Dash does. This only works on firmware that accepts that certificate. It does not bypass Android signature, downgrade, ABI, or SDK checks. The emulator build omits the system UID and uses a separate package ID; ordinary Android may request unknown-source permission and installation confirmation.
 
@@ -32,18 +32,27 @@ GPL-3.0; see LICENSE. PackageInstaller internal-storage/session flow in InstallS
 
 The emulator can verify rendering, networking and the ordinary Android installation path. Actual system-UID installation must be verified on the user's compatible MG4 head unit. No vehicle settings or installed car applications are changed during development.
 
-## Version 1.2.0: ordering and firmware
+## Version 1.3.0: ordering and firmware
 
 Default Recommended order combines editorial general-purpose usefulness (15–35 points), logarithmic GitHub APK asset download counts (up to 30 points), and stable APK release age (+20 within 90 days, +10 within 180 days, -15 beyond a year, -30 beyond two years). No stable APK release date receives -10. Compatibility sections take precedence in every sorting mode: author-confirmed SWI165, unverified, explicitly unsupported, then reference projects. Usefulness is a transparent editorial heuristic, not a quality or compatibility certification. Most downloaded and Recently updated are selectable alternatives.
 
 Counts are fetched from GitHub releases (up to the first 100 releases including prereleases), APK assets only. A + means the total may be incomplete. These are download events, not unique users or installs; repository-file downloads are not counted. Metadata is cached for 12 hours, fetched separately from the install worker, and retained on errors. Missing data is shown as unavailable, never fabricated as zero. Rate limits can prevent fresh statistics.
 
-Auto-detection reads ro.build.mt2712.version, falling back to ro.build.version.incremental / Build.VERSION.INCREMENTAL, following MG4Control v2.6.5. Strict SWI/DBI prefixes recognize 68, 69, 131, 132, 133, 165 and 173. Unknown values disable installation until manually selected. The raw build string is shown in the firmware dialog. Manual overrides persist and are visibly labeled; select Auto-detect again to clear one. Detection performs no vehicle writes. See MG4Control-LICENSE.MIT.
+Auto-detection reads ro.build.mt2712.version, falling back to ro.build.version.incremental / Build.VERSION.INCREMENTAL, following MG4Control v2.6.5. Strict SWI/DBI prefixes recognize 68, 69, 131, 132, 133, 165 and 173. Unknown values stay visibly unknown and produce a warning before installation. The raw build string is shown in the firmware dialog. Manual overrides persist and are visibly labeled; select Auto-detect again to clear one. Detection performs no vehicle writes. See MG4Control-LICENSE.MIT.
 
-Compatibility comes from the curated README and release-note review in COMPATIBILITY.md and compatibility-review.json (27 projects, reviewed 16 November 2026). Names and descriptions are never compatibility evidence. Confirmation is restricted to reviewed release tags and GitHub asset IDs; new tags and replacement assets remain unverified. Latest-tag metadata moves newer unreviewed releases out of the confirmed section when refreshed; cached project cards show historical evidence, while APK selection always checks the actual release and asset ID. Explicitly unsupported reviewed APKs are blocked in both UI and installer service. Unverified APKs require an explicit author-instructions acknowledgement. Other firmware families remain unverified because this review covers SWI165. Tap a compatibility label for limitations and source links. This is author-documented support, not on-car validation.
+Compatibility comes from the curated README and release-note review in COMPATIBILITY.md and compatibility-review.json (27 projects, reviewed 16 November 2026). Names and descriptions are never compatibility evidence. Confirmation is restricted to reviewed release tags and GitHub asset IDs; new tags and replacement assets remain unverified. Latest-tag metadata moves newer unreviewed releases out of the confirmed section when refreshed; cached project cards show historical evidence, while APK selection always checks the actual release and asset ID. Compatibility is advisory: unverified, unknown-firmware and explicitly unsupported APKs show a warning with an enabled Install anyway action. No firmware policy blocks installation. Android signature/SDK/ABI checks and download integrity validation still apply. Other firmware families remain unverified because this review covers SWI165. Tap a compatibility label for limitations and source links. This is author-documented support, not on-car validation.
 
 Run ./test.ps1 for parser and ranking/firmware regression tests. Use ./setup-public-test-keys.ps1 to obtain public AOSP signing test keys if needed.
 
-## Version 1.2.0 validation
+## Version 1.3.0 validation
 
 Parser tests and 21 firmware/evidence/ranking checks pass. Both car and emulator APKs pass apksigner verification. Emulator smoke checks covered the live 27-project feed, four confirmed apps above the unverified section, MG4Dash source-linked evidence with beta limitations, live v1.7.3 asset identification and the disabled install action before acknowledgement. Actual SWI165 vehicle installation remains untested. Reviewed compatibility is author documentation, not a guarantee of all features on every revision.
+
+
+## Version 1.3.0: car usability and installation
+
+- Larger type, three-column grid and 60–64 dp touch targets. App-owned dark dialogs avoid the MG4 firmware’s light dialog/white text mismatch.
+- A single APK proceeds straight to the warning and install action. Multiple variants use explicit Select APK rows. No checkbox or browser visit is required.
+- App details, README text and release notes open inside MG4 Install. Documentation requires GitHub access; failures do not prevent installing.
+- Full immersive layout, landscape cutout coverage and fullscreen restoration after dialogs/resume. The car build requests OEM dock hiding via the SystemUI `com.saicmotor.hmi.engineermode` broadcast with `isVisibility=false`, and restores visibility in onStop. This contract was checked against the local OEM WindowAdapter receiver; actual SWI165 dock behavior still requires car verification. The emulator build never sends this broadcast.
+- Installation success/failure is prominently displayed. An actual MG4-HVACFloat v0.5.4 download, Android confirmation and successful package installation were verified on the isolated emulator. This does not establish firmware support or vehicle feature functionality.

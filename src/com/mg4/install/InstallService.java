@@ -38,8 +38,7 @@ public class InstallService extends Service {
     void runInstall(Intent intent) {
         File apk=new File(getCacheDir(),"pending.apk"); int sessionId=-1; boolean committed=false;
         try {
-            int firmware=intent.getIntExtra("firmware",0);
-            if(firmware==0||intent.getIntExtra("reviewed",0)!=firmware||Compatibility.asset(intent.getStringExtra("repo"),firmware,intent.getStringExtra("version"),intent.getLongExtra("assetId",0))>=Compatibility.UNSUPPORTED)throw new IOException("Firmware compatibility review is required");
+            if(!intent.getBooleanExtra("confirmedInstall",false))throw new IOException("Confirm installation first");
             String title=intent.getStringExtra("name"); long expected=intent.getLongExtra("size",0);
             if(expected>1024L*1024*1024) throw new IOException("APK exceeds the 1 GB download limit");
             if(expected>0&&getCacheDir().getUsableSpace()<expected*2+32*1024*1024) throw new IOException("Not enough free storage");
@@ -79,7 +78,7 @@ public class InstallService extends Service {
                 progress("Installing "+title+"…");
                 session.commit(result.getIntentSender()); committed=true;
             }
-        } catch(Exception e) { report(this,e.getMessage()==null?"Installation failed":e.getMessage()); }
+        } catch(Exception e) { report(this,"Installation failed · "+(e.getMessage()==null?e.getClass().getSimpleName():e.getMessage())); }
         finally {
             if(sessionId>=0&&!committed) try { getPackageManager().getPackageInstaller().abandonSession(sessionId); } catch(Exception ignored) {}
             apk.delete(); busy=false;stopForeground(true);stopSelf();
