@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 package com.mg4.install;
 import java.util.*;
 /** README/release-note evidence, reviewed 2026-11-16. Never infer support from names. */
@@ -10,6 +11,9 @@ public final class Compatibility {
  static final Map<String,Entry> entries=new HashMap<>();
  static void add(Entry e){entries.put(e.slug.toLowerCase(Locale.ROOT),e);}
  static {
+  add(new Entry("suchhodler-boop/MG4Zorst",UNVERIFIED,"Android 9 MG4 sound synthesizer; README does not explicitly establish SWI165 compatibility. Audio routing depends on head-unit hardware.","","https://github.com/suchhodler-boop/MG4Zorst/blob/main/README.md","https://github.com/suchhodler-boop/MG4Zorst/releases",new long[0]));
+  add(new Entry("suchhodler-boop/MG4WirelessADP",UNVERIFIED,"Requires a matching platform certificate and system UID. README reports owner testing but no specific SWI165 confirmation. Enabling ADB may interrupt Android Auto; authorise only trusted computers.","","https://github.com/suchhodler-boop/MG4WirelessADP/blob/main/README.md","https://github.com/suchhodler-boop/MG4WirelessADP/releases",new long[0]));
+
   add(new Entry("Skittle6938/winclose",1,"Documented tests cover SWI69 and several other revisions, but not SWI165. Window APIs vary by firmware revision.","v1.2.0","https://github.com/Skittle6938/winclose/blob/HEAD/README.md","https://github.com/Skittle6938/winclose/releases/tag/v1.2.0",new long[]{473826457L}));
   add(new Entry("Skittle6938/MG4-Radio-DABplus-Fix",1,"Legacy radio fix; successor is MG4Radio. Requires a compatible stock Radio_eh32_ll package; no SWI165 confirmation.","","https://github.com/Skittle6938/MG4-Radio-DABplus-Fix/blob/HEAD/README.md","https://github.com/Skittle6938/MG4-Radio-DABplus-Fix/releases",new long[]{}));
   add(new Entry("SliDeeN/MG4Control",0,"Tagged README explicitly lists SWI165 as compatible; v2.5.0 introduced SWI165 support. Available features depend on vehicle equipment and vendor services.","v2.6.10","https://github.com/SliDeeN/MG4Control/blob/v2.6.10/README.md","https://github.com/SliDeeN/MG4Control/releases/tag/v2.6.10",new long[]{699329192L,699329191L}));

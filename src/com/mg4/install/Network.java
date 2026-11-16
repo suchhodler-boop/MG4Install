@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 package com.mg4.install;
 
 import java.net.*;
@@ -30,13 +31,13 @@ public final class Network {
         LinkedHashMap<String,FeedParser.Repo> all=new LinkedHashMap<>(); Set<String> seen=new HashSet<>(); String url=FeedParser.FEED;
         while(url!=null) {
             if(!seen.add(url)||seen.size()>30) throw new IOException("Unexpected GitHub pagination");
-            String html=get(url); for(FeedParser.Repo r:FeedParser.parse(html)) all.put(r.slug,r);
+            String html=get(url); for(FeedParser.Repo r:FeedParser.parse(html)) all.put(r.slug.toLowerCase(Locale.ROOT),r);
             url=FeedParser.next(html);
         }
-        return new ArrayList<>(all.values());
+        return FeedSources.merge(all.values());
     }
     public static final class Asset {
-        String name,url,version,digest,repo=""; int reviewedFirmware=0; long size,id;
+        String name,url,version,digest,repo=""; int reviewedFirmware=0; long size,id,selfUpdateCode;
         Asset(String n,String u,String v,String d,long s) { name=n;url=u;version=v;digest=d;size=s; }
         String label() { return name+"\n"+version+(size>0?String.format(java.util.Locale.US," · %.1f MB",size/1048576.0):""); }
     }

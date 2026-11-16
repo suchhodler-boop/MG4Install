@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 package com.mg4.install;
 
 import android.app.*;
@@ -39,6 +40,8 @@ public class InstallService extends Service {
         File apk=new File(getCacheDir(),"pending.apk"); int sessionId=-1; boolean committed=false;
         try {
             if(!intent.getBooleanExtra("confirmedInstall",false))throw new IOException("Confirm installation first");
+            long updateCode=intent.getLongExtra("selfUpdateCode",0);
+            if(updateCode>0){String expectedDigest=intent.getStringExtra("digest");if(expectedDigest==null||!expectedDigest.startsWith("sha256:")||!UpdatePolicy.digest(expectedDigest.substring(7)))throw new IOException("Self-update checksum is required");}
             String title=intent.getStringExtra("name"); long expected=intent.getLongExtra("size",0);
             if(expected>1024L*1024*1024) throw new IOException("APK exceeds the 1 GB download limit");
             if(expected>0&&getCacheDir().getUsableSpace()<expected*2+32*1024*1024) throw new IOException("Not enough free storage");
@@ -63,6 +66,7 @@ public class InstallService extends Service {
             PackageInfo info=getPackageManager().getPackageArchiveInfo(apk.getPath(),0);
             if(info==null) throw new IOException("This download is not a valid Android APK");
             if(info.applicationInfo.minSdkVersion>Build.VERSION.SDK_INT) throw new IOException("This APK requires a newer Android version");
+            if(updateCode>0)SelfUpdater.validate(this,apk,updateCode);
             PackageInstaller pi=getPackageManager().getPackageInstaller();
             PackageInstaller.SessionParams params=new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
             params.setAppPackageName(info.packageName); params.setSize(apk.length());

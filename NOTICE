@@ -1,0 +1,14 @@
+MG4 Install
+Copyright (C) 2026 MG4 Install contributors.
+
+The combined application is free software under the GNU General Public License,
+version 3 only (GPL-3.0-only). See LICENSE. It is supplied without warranty.
+Complete corresponding source and build instructions accompany each release at:
+https://github.com/suchhodler-boop/MG4Install
+
+The PackageInstaller flow is adapted from MG4Dash (GPL-3.0).
+Firmware detection is adapted from MIT-licensed MG4Control v2.6.5;
+its original notice is preserved in MG4Control-LICENSE.MIT.
+See THIRD_PARTY.md for provenance. These upstream portions retain their notices.
+Other apps listed in the catalog retain their own authorship and licenses;
+listing them does not relicense or bundle their code.

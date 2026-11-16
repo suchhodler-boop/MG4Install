@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 package com.mg4.install;
 import java.util.*;
 public final class Ranking {

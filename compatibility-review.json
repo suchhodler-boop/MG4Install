@@ -315,6 +315,26 @@
       "readme": "https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4/blob/1.4.2/README.md",
       "release": "https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4/releases/tag/1.4.2",
       "releaseCount": 9
+    },
+    {
+      "slug": "suchhodler-boop/MG4Zorst",
+      "state": 1,
+      "note": "README does not explicitly establish SWI165 compatibility; audio routing depends on the head unit.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/suchhodler-boop/MG4Zorst/blob/main/README.md",
+      "release": "https://github.com/suchhodler-boop/MG4Zorst/releases",
+      "reviewScope": "Supplemental repository README; no confirmed firmware evidence"
+    },
+    {
+      "slug": "suchhodler-boop/MG4WirelessADP",
+      "state": 1,
+      "note": "Owner-reported tests do not identify SWI165; matching platform signing and system UID required.",
+      "tag": "",
+      "assetIds": [],
+      "readme": "https://github.com/suchhodler-boop/MG4WirelessADP/blob/main/README.md",
+      "release": "https://github.com/suchhodler-boop/MG4WirelessADP/releases",
+      "reviewScope": "Supplemental repository README; no confirmed firmware evidence"
     }
   ]
 }

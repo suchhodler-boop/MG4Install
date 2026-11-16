@@ -173,3 +173,10 @@ Reviewed stable APK release: none. Published release histories checked: 1. [READ
 OVMS firmware/hardware project, not a head-unit APK. Linked Android clients are separate projects.
 
 Reviewed stable APK release: none. Published release histories checked: 0. [README](https://github.com/MG-EV-Hackers/Open-Vehicle-Monitoring-System-3-MGEV/blob/HEAD/README.md) · [Release notes](https://github.com/MG-EV-Hackers/Open-Vehicle-Monitoring-System-3-MGEV/releases).
+
+## Supplemental repositories (added 16 November 2026)
+
+- [MG4Zorst README](https://github.com/suchhodler-boop/MG4Zorst/blob/main/README.md): Android 9 MG4 sound synthesizer; no explicit SWI165 support statement. Audio routing depends on the head unit. Kept unverified.
+- [MG4WirelessADP README](https://github.com/suchhodler-boop/MG4WirelessADP/blob/main/README.md): requires matching platform signing and shared system UID. Owner-reported testing does not identify SWI165. Kept unverified; enabling ADB may interrupt Android Auto.
+
+Both repositories are supplemental feed sources and remain present offline. Upstream inclusion does not create duplicates. No compatibility claims are inferred from the repository owner or vehicle model name.

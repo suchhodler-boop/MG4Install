@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 package com.mg4.install;
 
 import android.app.*;
@@ -19,7 +20,7 @@ public class MainActivity extends Activity {
     final ExecutorService worker=Executors.newSingleThreadExecutor();
     final ExecutorService metricsWorker=Executors.newSingleThreadExecutor();
     final Map<String,Ranking.Stats> stats=new HashMap<>();
-    boolean metricsLoading=false; int sortMode=0,firmware=0; String detected="";TextView sortButton,firmwareButton;
+    boolean metricsLoading=false; int sortMode=0,firmware=0; String detected="";TextView sortButton,firmwareButton,updateButton; boolean checkingUpdate=false,visible=false; SelfUpdater.Release availableUpdate;
     final List<FeedParser.Repo> repos=new ArrayList<>();
     LinearLayout root,rows; TextView sync,status,count; EditText search; boolean loading=false,beta=false; String query="";
     Network.Asset pending; FeedParser.Repo pendingRepo;
@@ -30,9 +31,10 @@ public class MainActivity extends Activity {
     TextView button(String label,boolean primary,Runnable action){TextView v=text(label,18,primary?BG:TEXT);v.setGravity(Gravity.CENTER);v.setTypeface(Typeface.create("sans-serif-medium",0));v.setPadding(dp(17),0,dp(17),0);v.setMinHeight(dp(64));v.setBackground(new RippleDrawable(android.content.res.ColorStateList.valueOf(0x3345d5a6),shape(primary?ACCENT:PANEL2,9),null));v.setOnClickListener(w->action.run());return v;}
     LinearLayout horizontal(){LinearLayout l=new LinearLayout(this);l.setGravity(Gravity.CENTER_VERTICAL);return l;}
     void space(LinearLayout l,int n){l.addView(new View(this),new LinearLayout.LayoutParams(dp(n),1));}
-    public void onCreate(Bundle b){super.onCreate(b);beta=getPreferences(0).getBoolean("beta",false);applyFullscreen();detected=DeviceFirmware.raw();firmware=getPreferences(0).getInt("firmwareOverride",Firmware.parse(detected));sortMode=getPreferences(0).getInt("sort",0);readStats();build();registerReceiver(updates,new IntentFilter(getPackageName()+".STATUS"));readCache();refresh();}
+    public void onCreate(Bundle b){super.onCreate(b);beta=getPreferences(0).getBoolean("beta",false);applyFullscreen();detected=DeviceFirmware.raw();firmware=getPreferences(0).getInt("firmwareOverride",Firmware.parse(detected));sortMode=getPreferences(0).getInt("sort",0);readStats();build();registerReceiver(updates,new IntentFilter(getPackageName()+".STATUS"));readCache();refresh();checkForUpdates(false);}
     public void onConfigurationChanged(android.content.res.Configuration c){super.onConfigurationChanged(c);applyFullscreen();render();}
-    public void onResume(){super.onResume();setDockVisible(false);applyFullscreen();if(status!=null)showStatus();}
+    public void onResume(){super.onResume();visible=true;setDockVisible(false);applyFullscreen();if(status!=null)showStatus();}
+    @Override public void onPause(){visible=false;super.onPause();}
     void setDockVisible(boolean visible){
         if(getPackageName().endsWith(".emulator"))return;
         try{sendBroadcast(new Intent("com.saicmotor.hmi.engineermode").setPackage("com.android.systemui").putExtra("isVisibility",visible));}catch(Exception ignored){}
@@ -63,7 +65,7 @@ public class MainActivity extends Activity {
         View stretch=new View(this);header.addView(stretch,new LinearLayout.LayoutParams(0,1,1));
         firmwareButton=button(firmwareText(),false,()->chooseFirmware());header.addView(firmwareButton);space(header,10);
         sortButton=button(sortText(),false,()->chooseSort());header.addView(sortButton);space(header,10);
-        header.addView(button("↻  Refresh",false,()->refresh()));space(header,10);header.addView(button("About",false,()->about()));space(header,10);header.addView(button("×",false,()->finish()));
+        header.addView(button("↻  Refresh",false,()->refresh()));space(header,10);updateButton=button("Updates",false,()->updateSettings());header.addView(updateButton);space(header,10);header.addView(button("About",false,()->about()));space(header,10);header.addView(button("×",false,()->finish()));
         root.addView(header,new LinearLayout.LayoutParams(-1,dp(64)));
         View line=new View(this);line.setBackgroundColor(0xff303c41);LinearLayout.LayoutParams rule=new LinearLayout.LayoutParams(-1,dp(1));rule.topMargin=dp(16);rule.bottomMargin=dp(18);root.addView(line,rule);
         LinearLayout tools=horizontal();LinearLayout heading=new LinearLayout(this);heading.setOrientation(1);
@@ -127,7 +129,7 @@ public class MainActivity extends Activity {
         }catch(Exception e){runOnUiThread(()->dialog("Couldn’t load project information",e.getMessage()+"\n\nYou can still install after reading the compatibility warning."));}});
     }
     void refresh(){if(loading)return;loading=true;sync.setText("Syncing live GitHub list…");worker.execute(()->{try{List<FeedParser.Repo> fresh=Network.feed();JSONArray a=new JSONArray();for(FeedParser.Repo r:fresh){JSONObject o=new JSONObject();o.put("slug",r.slug);o.put("description",r.description);a.put(o);}getSharedPreferences("feed",0).edit().putString("data",a.toString()).putLong("time",System.currentTimeMillis()).apply();runOnUiThread(()->{repos.clear();repos.addAll(fresh);loading=false;sync.setText("● Live from GitHub  ·  "+fresh.size()+" projects  ·  just updated");render();loadStats(new ArrayList<>(fresh));});}catch(Exception e){runOnUiThread(()->{loading=false;sync.setText("Offline / sync unavailable · showing saved feed");status.setText(e.getMessage());});}});}
-    void readCache(){try{android.content.SharedPreferences p=getSharedPreferences("feed",0);JSONArray a=new JSONArray(p.getString("data","[]"));for(int i=0;i<a.length();i++){JSONObject o=a.getJSONObject(i);repos.add(new FeedParser.Repo(o.getString("slug"),o.getString("description")));}if(!repos.isEmpty())sync.setText("Saved feed · "+android.text.format.DateFormat.format("dd MMM, HH:mm",p.getLong("time",0)));render();}catch(Exception ignored){}}
+    void readCache(){try{android.content.SharedPreferences p=getSharedPreferences("feed",0);JSONArray a=new JSONArray(p.getString("data","[]"));for(int i=0;i<a.length();i++){JSONObject o=a.getJSONObject(i);repos.add(new FeedParser.Repo(o.getString("slug"),o.getString("description")));}List<FeedParser.Repo> merged=FeedSources.merge(repos);repos.clear();repos.addAll(merged);if(!repos.isEmpty())sync.setText("Saved feed · "+android.text.format.DateFormat.format("dd MMM, HH:mm",p.getLong("time",0)));render();}catch(Exception ignored){}}
     void resolve(FeedParser.Repo repo){
 
         if(InstallService.busy){dialog("Download in progress","Wait for the current APK or cancel its download first.");return;}
@@ -152,7 +154,7 @@ public class MainActivity extends Activity {
         if(checkSelfPermission("android.permission.INSTALL_PACKAGES")!=android.content.pm.PackageManager.PERMISSION_GRANTED&&!getPackageManager().canRequestPackageInstalls()){
             pending=a;new AppDialog(this).setTitle("Allow app installation").setMessage("Enable permission for MG4 Install, then return here. If Android restarts the app, select the APK again.").setPositiveButton("Open settings",(d,w)->startActivityForResult(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,Uri.parse("package:"+getPackageName())),10)).setNegativeButton("Cancel",(d,w)->pending=null).show();return;
         }
-        startForegroundService(new Intent(this,InstallService.class).putExtra("confirmedInstall",true).putExtra("firmware",firmware).putExtra("reviewed",a.reviewedFirmware).putExtra("repo",a.repo).putExtra("version",a.version).putExtra("assetId",a.id).putExtra("url",a.url).putExtra("name",a.name).putExtra("size",a.size).putExtra("digest",a.digest));status.setText("Starting download…");
+        startForegroundService(new Intent(this,InstallService.class).putExtra("selfUpdateCode",a.selfUpdateCode).putExtra("confirmedInstall",true).putExtra("firmware",firmware).putExtra("reviewed",a.reviewedFirmware).putExtra("repo",a.repo).putExtra("version",a.version).putExtra("assetId",a.id).putExtra("url",a.url).putExtra("name",a.name).putExtra("size",a.size).putExtra("digest",a.digest));status.setText("Starting download…");
     }
     protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);if(req==10&&pending!=null){Network.Asset a=pending;pending=null;if(getPackageManager().canRequestPackageInstalls())begin(a);else status.setText("Installation permission was not granted.");}}
     void dialog(String title,String message){if(!isFinishing()&&!isDestroyed())new AppDialog(this).setTitle(title).setMessage(message).setPositiveButton("OK",null).show();}
@@ -179,10 +181,47 @@ public class MainActivity extends Activity {
             final boolean partial=failed;runOnUiThread(()->{metricsLoading=false;if(isDestroyed())return;stats.clear();stats.putAll(cached);render();sync.setText(partial?"GitHub feed · some download stats unavailable; saved counts retained":"GitHub feed · APK downloads cached for 12 hours");});
         });
     }
+    void checkForUpdates(boolean manual){
+        if(checkingUpdate)return;
+        android.content.SharedPreferences prefs=getSharedPreferences("updates",0);
+        if(!manual&&(!prefs.getBoolean("autoCheck",true)||System.currentTimeMillis()-prefs.getLong("checked",0)<12*3600000L))return;
+        checkingUpdate=true;if(manual)status.setText("Checking MG4 Install updates…");
+        worker.execute(()->{try{
+            SelfUpdater.Release release=SelfUpdater.check(this);
+            prefs.edit().putLong("checked",System.currentTimeMillis()).apply();
+            runOnUiThread(()->{checkingUpdate=false;if(isDestroyed()||isFinishing())return;availableUpdate=release;updateButton.setText(release==null?"Updates":"Update available");
+                if(release==null){if(manual&&visible)dialog("MG4 Install is up to date","Installed version: "+SelfUpdater.version(this));return;}
+                if(!visible)return;
+                if(!manual&&prefs.getBoolean("autoInstall",false)&&!InstallService.busy){begin(release.asset);return;}
+                showUpdate(release);
+            });
+        }catch(Exception e){runOnUiThread(()->{checkingUpdate=false;if(manual&&visible&&!isDestroyed())dialog("Couldn’t check for updates",e.getMessage());});}});
+    }
+    void showUpdate(SelfUpdater.Release release){
+        new AppDialog(this).setTitle("MG4 Install "+release.version+" available").setMessage("Installed: "+SelfUpdater.version(this)+"\n\n"+release.notes+"\n\nThe APK is verified and installed directly. The app may close during its update; reopen it afterwards.")
+            .setPositiveButton("Update now",(d,w)->begin(release.asset)).setNegativeButton("Later",null).show();
+    }
+    void updateSettings(){
+        android.content.SharedPreferences prefs=getSharedPreferences("updates",0);
+        LinearLayout content=new LinearLayout(this);content.setOrientation(1);content.setPadding(dp(20),dp(12),dp(20),dp(12));
+        content.addView(text("Installed: "+SelfUpdater.version(this)+"\nStable releases from suchhodler-boop/MG4Install. Checks run when the app opens, at most once every 12 hours. Use Check now at any time.\n\nAutomatic installation applies only to MG4 Install itself. Android may ask for confirmation. Use while parked.",18,TEXT));
+        CheckBox auto=new CheckBox(this);auto.setText("Check automatically when the app opens");auto.setTextSize(22);auto.setMinHeight(dp(64));auto.setTextColor(TEXT);auto.setChecked(prefs.getBoolean("autoCheck",true));content.addView(auto);
+        CheckBox install=new CheckBox(this);install.setText("Automatically download and install MG4 Install updates");install.setTextSize(22);install.setMinHeight(dp(64));install.setTextColor(TEXT);install.setChecked(prefs.getBoolean("autoInstall",false));content.addView(install);
+        auto.setOnCheckedChangeListener((b,on)->{prefs.edit().putBoolean("autoCheck",on).apply();if(!on)install.setChecked(false);});
+        install.setOnCheckedChangeListener((b,on)->{prefs.edit().putBoolean("autoInstall",on).apply();if(on)auto.setChecked(true);});
+        AppDialog panel=new AppDialog(this).setTitle("MG4 Install updates").setView(content).setPositiveButton("Check now",(d,w)->checkForUpdates(true)).setNegativeButton("Close",null);
+        if(availableUpdate!=null)panel.setNeutralButton("Update now",(d,w)->showUpdate(availableUpdate));panel.show();
+    }
+    void showLicense(){
+        try(java.io.InputStream in=getResources().openRawResource(getResources().getIdentifier("license","raw",getPackageName()));java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream()){
+            byte[] buffer=new byte[4096];int n;while((n=in.read(buffer))!=-1)out.write(buffer,0,n);
+            new AppDialog(this).setTitle("GNU GPL version 3").setMessage(out.toString("UTF-8")).setPositiveButton("Close",null).show();
+        }catch(Exception e){dialog("License","GNU GPL version 3. Full license and source: github.com/suchhodler-boop/MG4Install");}
+    }
     void about(){
         LinearLayout content=new LinearLayout(this);content.setOrientation(1);content.setPadding(dp(24),dp(10),dp(24),dp(10));
-        TextView info=text("A live collection from hojnikb / mg4-apps.\n\nRecommended order uses editorial usefulness, GitHub APK download counts and stable-release age. Counts cover up to 100 releases (including prereleases); + means a lower bound. Downloads are not unique users. Missing stats are not treated as zero. Compatibility groups always come first. SWI165 evidence was reviewed on 16 Nov 2026 from READMEs and release notes. Author-confirmed means documented support, not testing on your car. New versions and replaced assets stay unverified until reviewed. Tap a compatibility label for evidence.\n\nMG4Zorst-inspired design. Installer adapted from Skittle6938/MG4Dash under GPL-3.0.\n\nSystem installation requires compatible MG4 platform firmware. Use while parked.",15,TEXT);content.addView(info);
+        TextView info=text("A live collection from hojnikb / mg4-apps, plus MG4Zorst and MG4WirelessADP. Duplicate projects appear once.\n\nRecommended order uses editorial usefulness, GitHub APK download counts and stable-release age. Counts cover up to 100 releases (including prereleases); + means a lower bound. Downloads are not unique users. Missing stats are not treated as zero. Compatibility groups always come first. SWI165 evidence was reviewed on 16 Nov 2026 from READMEs and release notes. Author-confirmed means documented support, not testing on your car. New versions and replaced assets stay unverified until reviewed. Tap a compatibility label for evidence.\n\nLicensed under GNU GPL version 3 (GPL-3.0-only). Source: github.com/suchhodler-boop/MG4Install.\n\nMG4Zorst-inspired design. Installer adapted from Skittle6938/MG4Dash under GPL-3.0.\n\nSystem installation requires compatible MG4 platform firmware. Use while parked.",15,TEXT);content.addView(info);
         CheckBox choice=new CheckBox(this);choice.setText("Include prerelease APKs");choice.setTextColor(TEXT);choice.setTextSize(22);choice.setChecked(beta);choice.setPadding(0,dp(15),0,0);choice.setOnCheckedChangeListener((v,checked)->{beta=checked;getPreferences(0).edit().putBoolean("beta",beta).apply();});content.addView(choice);
-        ScrollView aboutScroll=new ScrollView(this);aboutScroll.addView(content);new AppDialog(this).setTitle("MG4 Install 1.3.0").setView(aboutScroll).setPositiveButton("Done",null).show();
+        ScrollView aboutScroll=new ScrollView(this);aboutScroll.addView(content);new AppDialog(this).setTitle("MG4 Install "+SelfUpdater.version(this)).setView(aboutScroll).setPositiveButton("Done",null).setNeutralButton("GPL-3.0 license",(d,w)->showLicense()).show();
     }
 }
