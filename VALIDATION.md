@@ -13,3 +13,11 @@
 The Android test uses a separate emulator package and does not verify OEM system-UID installation, SWI detection, vehicle functionality or dock behavior on the actual car. Automatic checks run when the app opens, not as a continuous background daemon. A future car self-update still needs validation on compatible hardware. GitHub API limits and availability can affect live metadata.
 
 All task emulator files and bounded logs are kept in the project scratch directory on E:. Test-owned emulators are shut down after validation.
+
+## Version 1.4.1 — reader loading
+
+- Reader opens immediately with a spinner and loading message, and replaces its own content on completion.
+- Android device regression: 17 checks passed covering rapid repeated taps, one window/request, cancellation, stale-result rejection, same-window completion, error feedback and Retry.
+- Test holds the network worker before repeated taps so loading and cancellation checks do not depend on connection speed. Live requests verify the completion and missing-repository error paths.
+- Run `build.ps1 -Emulator`, install the emulator APK, then run `test-reader.ps1` against the isolated test device. Android's asynchronous dismissal callback is allowed to complete before inspecting cancellation state.
+- Existing parser, firmware/ranking and updater/feed regression checks pass. Signed car and emulator builds pass APK signature verification.

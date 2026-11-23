@@ -1,11 +1,9 @@
-# MG4 Install 1.4.0
+# MG4 Install 1.4.1
 
-- Added an Updates screen with automatic stable-release checks, manual checks and optional automatic self-installation.
-- Self-updates verify SHA-256, GitHub asset metadata, package name, a newer version code and the installed signing certificate.
-- Always includes MG4Zorst and MG4WirelessADP alongside hojnikb’s live MG4 list, with case-insensitive deduplication and offline availability.
-- Includes GPL-3.0-only license notices, corresponding source and an offline license viewer.
-- Retains the large fullscreen catalog, in-app project reader, SWI165 evidence groups and warning-only install flow.
+- README and release-note readers immediately show a spinner and loading message.
+- Repeated taps reuse a single reader instead of queuing duplicate dialogs.
+- Loaded text replaces the loading view in the same window.
+- Closing the reader cancels its pending task and prevents late results from reopening it.
+- Errors appear in the same reader with a Retry button.
 
-Install the car APK on compatible MG4 firmware. Open Updates to configure automatic updates; automatic checks are on, automatic installation is off until enabled. Android may request confirmation during installation.
-
-Vehicle-specific functionality and OEM dock behavior require validation on the head unit. Catalog compatibility remains advisory. GitHub rate limits can temporarily affect feed/update checks.
+Available through Updates in MG4 Install, or install the APK from this release.

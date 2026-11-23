@@ -23,6 +23,7 @@ public class MainActivity extends Activity {
     boolean metricsLoading=false; int sortMode=0,firmware=0; String detected="";TextView sortButton,firmwareButton,updateButton; boolean checkingUpdate=false,visible=false; SelfUpdater.Release availableUpdate;
     final List<FeedParser.Repo> repos=new ArrayList<>();
     LinearLayout root,rows; TextView sync,status,count; EditText search; boolean loading=false,beta=false; String query="";
+    Dialog projectReader; Future<?> projectReadTask; int projectReadGeneration=0;
     Network.Asset pending; FeedParser.Repo pendingRepo;
     BroadcastReceiver updates=new BroadcastReceiver(){ public void onReceive(Context c,Intent i){showStatus();String message=getSharedPreferences("state",0).getString("status","");if(message.startsWith("Installation failed")||message.startsWith("Installed successfully")||message.startsWith("Unable to open"))dialog("Installation result",message);} };
     int dp(float n){return Math.round(n*getResources().getDisplayMetrics().density);}
@@ -56,7 +57,7 @@ public class MainActivity extends Activity {
         super.onWindowFocusChanged(focused);
         if(focused){setDockVisible(false);applyFullscreen();}
     }
-    public void onDestroy(){unregisterReceiver(updates);worker.shutdownNow();metricsWorker.shutdownNow();super.onDestroy();}
+    public void onDestroy(){if(projectReader!=null)projectReader.dismiss();unregisterReceiver(updates);worker.shutdownNow();metricsWorker.shutdownNow();super.onDestroy();}
     void build(){
         root=new LinearLayout(this);root.setOrientation(1);root.setPadding(dp(28),dp(20),dp(28),dp(14));root.setBackgroundColor(BG);setContentView(root);
         LinearLayout header=horizontal();
@@ -120,13 +121,38 @@ public class MainActivity extends Activity {
             .setPositiveButton("Read README",(d,w)->readProject(r,false,false)).setNeutralButton("Release notes",(d,w)->readProject(r,true,false)).setNegativeButton("Close",null).show();
     }
     void readProject(FeedParser.Repo r,boolean releases,boolean reviewed){
-        status.setText("Loading project information…");worker.execute(()->{try{
+        // Keep one reader from the first tap through loading, success or failure.
+        if(projectReader!=null&&projectReader.isShowing())return;
+        if(isFinishing()||isDestroyed())return;
+        final int generation=++projectReadGeneration;
+        final String kind=releases?"release notes":"README";
+        LinearLayout content=new LinearLayout(this);content.setOrientation(1);content.setPadding(dp(18),dp(18),dp(18),dp(18));
+        LinearLayout loadingRow=horizontal();ProgressBar spinner=new ProgressBar(this);spinner.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(ACCENT));loadingRow.addView(spinner,new LinearLayout.LayoutParams(dp(48),dp(48)));space(loadingRow,20);
+        loadingRow.addView(text("Loading "+kind+" from GitHub…",20,TEXT));content.addView(loadingRow);
+        TextView hint=text("Please wait. You can close this window to cancel.",18,MUTED);hint.setPadding(0,dp(18),0,0);content.addView(hint);
+        final Dialog reader=new AppDialog(this).setTitle(r.name()+(releases?" · Release notes":" · README")).setView(content).setPositiveButton("Close",null).show();
+        projectReader=reader;
+        reader.setOnDismissListener(d->{
+            if(projectReader==reader){projectReader=null;++projectReadGeneration;if(projectReadTask!=null){projectReadTask.cancel(true);projectReadTask=null;}}
+            if(!isFinishing()&&!isDestroyed())applyFullscreen();
+        });
+        projectReadTask=worker.submit(()->{try{
             String result;
             if(releases){JSONArray all=new JSONArray(Network.get("https://api.github.com/repos/"+r.slug+"/releases?per_page=10"));StringBuilder out=new StringBuilder();for(int i=0;i<all.length();i++){JSONObject release=all.getJSONObject(i);out.append(release.optString("tag_name")).append("\n\n").append(release.optString("body","No notes published.")).append("\n\n────────\n\n");}result=out.length()==0?"No published release notes.":out.toString();}
             else {String tag=reviewed?Compatibility.get(r.slug).tag:"";JSONObject readme=new JSONObject(Network.get("https://api.github.com/repos/"+r.slug+"/readme"+(tag.isEmpty()?"":"?ref="+java.net.URLEncoder.encode(tag,"UTF-8"))));result=new String(android.util.Base64.decode(readme.getString("content"),android.util.Base64.DEFAULT),"UTF-8");}
             final String body=result.length()>200000?result.substring(0,200000)+"\n[Text truncated]":result;
-            runOnUiThread(()->{if(!isFinishing()&&!isDestroyed()){status.setText("Project information loaded");new AppDialog(this).setTitle(r.name()+(releases?" · Release notes":" · README")).setMessage(body).setPositiveButton("Close",null).show();}});
-        }catch(Exception e){runOnUiThread(()->dialog("Couldn’t load project information",e.getMessage()+"\n\nYou can still install after reading the compatibility warning."));}});
+            runOnUiThread(()->{
+                if(!currentProjectRead(reader,generation))return;
+                content.removeAllViews();TextView document=text(body,18,TEXT);document.setTextIsSelectable(true);content.addView(document);status.setText("Project information loaded");
+            });
+        }catch(Exception e){runOnUiThread(()->{
+            if(!currentProjectRead(reader,generation))return;
+            content.removeAllViews();content.addView(text("Couldn’t load "+kind+".\n\n"+(e.getMessage()==null?"Check your connection and try again.":e.getMessage()),18,TEXT));
+            content.addView(button("Retry",true,()->{reader.dismiss();readProject(r,releases,reviewed);}));
+        });}});
+    }
+    boolean currentProjectRead(Dialog reader,int generation){
+        return !isFinishing()&&!isDestroyed()&&projectReader==reader&&reader.isShowing()&&projectReadGeneration==generation;
     }
     void refresh(){if(loading)return;loading=true;sync.setText("Syncing live GitHub list…");worker.execute(()->{try{List<FeedParser.Repo> fresh=Network.feed();JSONArray a=new JSONArray();for(FeedParser.Repo r:fresh){JSONObject o=new JSONObject();o.put("slug",r.slug);o.put("description",r.description);a.put(o);}getSharedPreferences("feed",0).edit().putString("data",a.toString()).putLong("time",System.currentTimeMillis()).apply();runOnUiThread(()->{repos.clear();repos.addAll(fresh);loading=false;sync.setText("● Live from GitHub  ·  "+fresh.size()+" projects  ·  just updated");render();loadStats(new ArrayList<>(fresh));});}catch(Exception e){runOnUiThread(()->{loading=false;sync.setText("Offline / sync unavailable · showing saved feed");status.setText(e.getMessage());});}});}
     void readCache(){try{android.content.SharedPreferences p=getSharedPreferences("feed",0);JSONArray a=new JSONArray(p.getString("data","[]"));for(int i=0;i<a.length();i++){JSONObject o=a.getJSONObject(i);repos.add(new FeedParser.Repo(o.getString("slug"),o.getString("description")));}List<FeedParser.Repo> merged=FeedSources.merge(repos);repos.clear();repos.addAll(merged);if(!repos.isEmpty())sync.setText("Saved feed · "+android.text.format.DateFormat.format("dd MMM, HH:mm",p.getLong("time",0)));render();}catch(Exception ignored){}}

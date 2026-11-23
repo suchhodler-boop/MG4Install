@@ -23,7 +23,7 @@ present when browsing the saved feed offline.
   on reviewed README/release-note evidence, never names alone. See [the review](COMPATIBILITY.md).
 - Automatic SWI detection with a visible manual override. Compatibility is
   advisory: unverified or incompatible apps show **Install anyway**, not a block.
-- In-app README/release-note reader and large dark dialogs.
+- In-app README/release-note reader with immediate loading feedback, a single window, cancellation and retry; large dark dialogs.
 - APKs published directly in repositories are supported when no eligible
   release APK exists. Reference projects retain their source information.
 
@@ -35,7 +35,7 @@ marks a lower bound; downloads are not unique users or a compatibility rating.
 
 ## Install and use
 
-Install `MG4-Install-1.4.0-car.apk` once on the head unit. Use while parked.
+Install `MG4-Install-1.4.1-car.apk` once on the head unit. Use while parked.
 Tap **Install**, choose a variant if more than one exists, then continue through
 the compatibility warning. The app downloads, checks and submits the APK to
 Android’s PackageInstaller. Download/installation failures are displayed.
