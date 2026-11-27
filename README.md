@@ -12,7 +12,9 @@ APKs directly into Android’s installer without finding them in Downloads.
 
 The app refreshes [hojnikb’s MG4 Apps list](https://github.com/stars/hojnikb/lists/mg4-apps)
 and always includes [MG4Zorst](https://github.com/suchhodler-boop/MG4Zorst) and
-[MG4WirelessADP](https://github.com/suchhodler-boop/MG4WirelessADP). Repository
+[MG4WirelessADP](https://github.com/suchhodler-boop/MG4WirelessADP), plus the
+active [EVSuite](https://malys.github.io/EVSuite/) apps: EVTasker, EVABRPUploader,
+EVChargePilot, EVLauncher and EVSwipe (all under `malys/`). Repository
 names are deduplicated without regard to capitalization, so adding either to
 the upstream list does not create another card. Supplemental apps are also
 present when browsing the saved feed offline.
